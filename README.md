@@ -1,2 +1,2 @@
 # hrq
-HTTP client like requests in Go
+Http client like requests in Go
