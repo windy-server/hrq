@@ -39,6 +39,17 @@ func (r *Request) SetHeader(key, value string) *Request {
 	return r
 }
 
+// GetHeader returns a value of request header.
+func (r *Request) GetHeader(key string) string {
+	return r.Req.Header.Get(key)
+}
+
+// DelHeader delete a value of request header by key.
+func (r *Request) DelHeader(key string) *Request {
+	r.Req.Header.Del(key)
+	return r
+}
+
 // NewRequest make a Request.
 func NewRequest(method, url string, body io.Reader, timeoutSecond int) (req *Request, err error) {
 	request, err := http.NewRequest(method, url, nil)
