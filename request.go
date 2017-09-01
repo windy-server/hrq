@@ -101,7 +101,7 @@ func Get(url string) (req *Request, err error) {
 
 // Post make a request whose method is GET.
 func Post(url string, data map[string][]string) (req *Request, err error) {
-	req, err = NewRequest("Post", url, nil, DefaultTimeout)
+	req, err = NewRequest("POST", url, nil, DefaultTimeout)
 	if err != nil {
 		return
 	}
