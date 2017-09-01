@@ -1,8 +1,12 @@
 package hrq
 
 import (
+	"encoding/json"
 	"io"
+	"io/ioutil"
 	"net/http"
+	"net/url"
+	"strings"
 	"time"
 )
 
@@ -16,10 +20,35 @@ var DefaultContentType = "application/x-www-form-urlencoded"
 type Request struct {
 	Req     *http.Request
 	Timeout time.Duration
+	Data    map[string][]string
+}
+
+func (r *Request) setBody(values *strings.Reader) {
+	body := ioutil.NopCloser(values)
+	r.Req.Body = body
+	r.Req.ContentLength = int64(values.Len())
+	s := *values
+	r.Req.GetBody = func() (io.ReadCloser, error) {
+		r := s
+		return ioutil.NopCloser(&r), nil
+	}
 }
 
 // Send sends request.
 func (r *Request) Send() (res *Response, err error) {
+	if r.Req.Method == "POST" && r.Data != nil {
+		if r.GetHeader("Content-Type") == "application/x-www-form-urlencoded" {
+			values := strings.NewReader(url.Values(r.Data).Encode())
+			r.setBody(values)
+		} else if r.GetHeader("Content-Type") == "application/json" {
+			jsonBytes, err := json.Marshal(r.Data)
+			if err != nil {
+				return nil, err
+			}
+			values := strings.NewReader(string(jsonBytes))
+			r.setBody(values)
+		}
+	}
 	cli := &http.Client{
 		Timeout: r.Timeout,
 	}
@@ -71,8 +100,12 @@ func Get(url string) (req *Request, err error) {
 }
 
 // Post make a request whose method is GET.
-func Post(url string) (req *Request, err error) {
+func Post(url string, data map[string][]string) (req *Request, err error) {
 	req, err = NewRequest("Post", url, nil, DefaultTimeout)
+	if err != nil {
+		return
+	}
 	req.SetHeader("Content-Type", DefaultContentType)
+	req.Data = data
 	return
 }
