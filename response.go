@@ -1,6 +1,7 @@
 package hrq
 
 import (
+	"bytes"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -19,12 +20,13 @@ func (r *Response) Content() ([]byte, error) {
 	if r.Body != nil {
 		return r.Body, nil
 	}
-	bytes, err := ioutil.ReadAll(r.Res.Body)
+	defer r.Res.Body.Close()
+	bs, err := ioutil.ReadAll(r.Res.Body)
 	if err != nil {
 		return nil, err
 	}
-	r.Body = bytes
-	return bytes, err
+	r.Body = bs
+	return bs, err
 }
 
 // ContentType returns content-type in response header..
@@ -45,5 +47,28 @@ func (r *Response) Encode() (encode string, err error) {
 		return
 	}
 	_, encode, _ = charset.DetermineEncoding(body, contentType)
+	return
+}
+
+// Text returns response body by string.
+func (r *Response) Text() (text string, err error) {
+	encode, err := r.Encode()
+	if err != nil {
+		return
+	}
+	content, err := r.Content()
+	if err != nil {
+		return
+	}
+	br := bytes.NewReader(content)
+	rl, err := charset.NewReaderLabel(encode, br)
+	if err != nil {
+		return
+	}
+	bs, err := ioutil.ReadAll(rl)
+	if err != nil {
+		return
+	}
+	text = string(bs)
 	return
 }

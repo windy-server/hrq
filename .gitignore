@@ -15,4 +15,4 @@
 
 *.sw[op]
 vendor/
-main.go
+main/
