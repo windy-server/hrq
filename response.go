@@ -11,27 +11,27 @@ import (
 
 // Response wraps http.Response.
 type Response struct {
-	Res  *http.Response
-	Body []byte
+	*http.Response
+	rawBody []byte
 }
 
 // Content returns response body by byte.
 func (r *Response) Content() ([]byte, error) {
-	if r.Body != nil {
-		return r.Body, nil
+	if r.rawBody != nil {
+		return r.rawBody, nil
 	}
-	defer r.Res.Body.Close()
-	bs, err := ioutil.ReadAll(r.Res.Body)
+	defer r.Body.Close()
+	bs, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		return nil, err
 	}
-	r.Body = bs
+	r.rawBody = bs
 	return bs, err
 }
 
 // ContentType returns content-type in response header..
 func (r *Response) ContentType() string {
-	for k, v := range r.Res.Header {
+	for k, v := range r.Header {
 		if strings.ToLower(k) == "content-type" {
 			return v[0]
 		}
