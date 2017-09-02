@@ -35,6 +35,10 @@ func (r *Request) setBody(values *strings.Reader) {
 }
 
 // Send sends request.
+// If method is POST and content-type is application/x-www-form-urlencoded,
+// the request data is urlencoded.
+// If method is POST and content-type is application/json,
+// the request data is converted to json string.
 func (r *Request) Send() (res *Response, err error) {
 	if r.Method == "POST" && r.Data != nil {
 		if r.GetHeader("Content-Type") == "application/x-www-form-urlencoded" {
