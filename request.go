@@ -18,17 +18,17 @@ var DefaultContentType = "application/x-www-form-urlencoded"
 
 // Request wraps http.Request.
 type Request struct {
-	Req     *http.Request
+	*http.Request
 	Timeout time.Duration
 	Data    map[string][]string
 }
 
 func (r *Request) setBody(values *strings.Reader) {
 	body := ioutil.NopCloser(values)
-	r.Req.Body = body
-	r.Req.ContentLength = int64(values.Len())
+	r.Body = body
+	r.ContentLength = int64(values.Len())
 	s := *values
-	r.Req.GetBody = func() (io.ReadCloser, error) {
+	r.GetBody = func() (io.ReadCloser, error) {
 		r := s
 		return ioutil.NopCloser(&r), nil
 	}
@@ -36,7 +36,7 @@ func (r *Request) setBody(values *strings.Reader) {
 
 // Send sends request.
 func (r *Request) Send() (res *Response, err error) {
-	if r.Req.Method == "POST" && r.Data != nil {
+	if r.Method == "POST" && r.Data != nil {
 		if r.GetHeader("Content-Type") == "application/x-www-form-urlencoded" {
 			values := strings.NewReader(url.Values(r.Data).Encode())
 			r.setBody(values)
@@ -52,30 +52,30 @@ func (r *Request) Send() (res *Response, err error) {
 	cli := &http.Client{
 		Timeout: r.Timeout,
 	}
-	response, err := cli.Do(r.Req)
+	response, err := cli.Do(r.Request)
 	if err != nil {
 		return
 	}
 	res = &Response{
-		Res: response,
+		Response: response,
 	}
 	return
 }
 
 // SetHeader sets a value of request header.
 func (r *Request) SetHeader(key, value string) *Request {
-	r.Req.Header.Set(key, value)
+	r.Header.Set(key, value)
 	return r
 }
 
 // GetHeader returns a value of request header.
 func (r *Request) GetHeader(key string) string {
-	return r.Req.Header.Get(key)
+	return r.Header.Get(key)
 }
 
 // DelHeader delete a value of request header by key.
 func (r *Request) DelHeader(key string) *Request {
-	r.Req.Header.Del(key)
+	r.Header.Del(key)
 	return r
 }
 
@@ -87,7 +87,7 @@ func NewRequest(method, url string, body io.Reader, timeoutSecond int) (req *Req
 	}
 	timeout := time.Duration(timeoutSecond) * time.Second
 	req = &Request{
-		Req:     request,
+		Request: request,
 		Timeout: timeout,
 	}
 	return
