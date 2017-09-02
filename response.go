@@ -9,7 +9,7 @@ import (
 	"golang.org/x/net/html/charset"
 )
 
-// Response wraps http.Response.
+// Response inherits http.Response.
 type Response struct {
 	*http.Response
 	rawBody []byte

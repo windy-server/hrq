@@ -16,7 +16,7 @@ var DefaultTimeout = 15
 // DefaultContentType is a content-type of request.
 var DefaultContentType = "application/x-www-form-urlencoded"
 
-// Request wraps http.Request.
+// Request inherits http.Request.
 type Request struct {
 	*http.Request
 	Timeout time.Duration
@@ -76,6 +76,13 @@ func (r *Request) GetHeader(key string) string {
 // DelHeader delete a value of request header by key.
 func (r *Request) DelHeader(key string) *Request {
 	r.Header.Del(key)
+	return r
+}
+
+// PutCookie makes a cookie which is setted name and value.
+// It adds a cookie to a request.
+func (r *Request) PutCookie(name, value string) *Request {
+	r.AddCookie(&http.Cookie{Name: name, Value: value})
 	return r
 }
 
