@@ -24,7 +24,7 @@ data := map[string][]string{
     "bar": []string{"456"},
 }
 req, _ := hrq.Post("http://example.com", data)
-// When Content-Type is "application/x-www-form-urlencoded"(It is default ),
+// When Content-Type is "application/x-www-form-urlencoded"(It is default),
 // the request data is urlencoded.
 // When Content-Type is "application/json",
 // the request data is converted to json string.
