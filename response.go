@@ -15,6 +15,17 @@ type Response struct {
 	rawBody []byte
 }
 
+// GetHeader returns header value.
+func (r *Response) GetHeader(name string) string {
+	lowerName := strings.ToLower(name)
+	for k, v := range r.Header {
+		if strings.ToLower(k) == lowerName {
+			return v[0]
+		}
+	}
+	return ""
+}
+
 // Content returns response body by byte.
 func (r *Response) Content() ([]byte, error) {
 	if r.rawBody != nil {
@@ -31,12 +42,7 @@ func (r *Response) Content() ([]byte, error) {
 
 // ContentType returns content-type in response header..
 func (r *Response) ContentType() string {
-	for k, v := range r.Header {
-		if strings.ToLower(k) == "content-type" {
-			return v[0]
-		}
-	}
-	return ""
+	return r.GetHeader("Content-Type")
 }
 
 // Encode returns encode of response body.
