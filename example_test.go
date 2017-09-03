@@ -9,6 +9,6 @@ import (
 func Example() {
 	req, _ := hrq.Get("http://example.com")
 	res, _ := req.Send()
-	s, _ := res.Content()
+	s, _ := res.Text()
 	fmt.Print(s)
 }
