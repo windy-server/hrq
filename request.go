@@ -13,7 +13,7 @@ import (
 // DefaultTimeout is seconds of timeout.
 var DefaultTimeout = 15
 
-// DefaultContentType is a content-type of request.
+// DefaultContentType is a default content-type of request.
 var DefaultContentType = "application/x-www-form-urlencoded"
 
 // Request inherits http.Request.
