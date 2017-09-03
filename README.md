@@ -6,17 +6,20 @@ Http client like requests in Go
 
 ## Usage
 
-### Get request
+### Request
+
+__hrq.Request inherits http.Request.__
+
+#### Get
 
 ```Go
 req, _ := hrq.Get("http://example.com")
 res, _ := req.Send()
-// get request body by string
 s, _ := res.Text()
 fmt.Print(s)
 ```
 
-### Post request
+#### Post
 
 ```Go
 data := map[string][]string{
@@ -30,6 +33,20 @@ req, _ := hrq.Post("http://example.com", data)
 // the request data is converted to json string.
 req.SetHeader("Content-Type", "application/json")
 res, _ := req.Send()
+s, _ := res.Text()
+fmt.Print(s)
+```
+
+### Response
+
+__hrq.Response inherits http.Response.__
+
+
+```Go
+req, _ := hrq.Get("http://example.com")
+res, _ := req.Send()
+// get request body by byte
+b, _ := res.Content()
 // get request body by string
 s, _ := res.Text()
 fmt.Print(s)
