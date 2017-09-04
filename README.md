@@ -25,6 +25,7 @@ func main() {
   - [Request](https://github.com/windy-server/hrq#request)
   - [Request](https://github.com/windy-server/hrq#response)
   - [Header](https://github.com/windy-server/hrq#header)
+  - [Cookie](https://github.com/windy-server/hrq#cookie)
 
 ## Install
 
@@ -95,4 +96,13 @@ req.SetHeader("abc", "efg")
 res, _ := req.Send()
 v, _ := res.GetHeader("foo")
 fmt.Print(v)
+```
+
+### Cookie
+
+```Go
+req, _ := hrq.Get("http://example.com")
+req.PutCookie("abc", "efg")
+res, _ := req.Send()
+cm := res.CookiesMap()
 ```
