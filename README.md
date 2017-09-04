@@ -3,6 +3,19 @@
 
 Http client like requests in Go
 
+```Go
+req, _ := hrq.Get("http://example.com")
+res, _ := req.Send()
+s, _ := res.Text()
+fmt.Print(s)
+```
+
+* [Install](https://github.com/windy-server/hrq#install)
+* [Usage](https://github.com/windy-server/hrq#usage)
+  - [Request](https://github.com/windy-server/hrq#request)
+  - [Request](https://github.com/windy-server/hrq#response)
+  - [Header](https://github.com/windy-server/hrq#header)
+
 ## Install
 
 ```
