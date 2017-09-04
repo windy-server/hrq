@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"golang.org/x/net/html/charset"
@@ -13,6 +14,20 @@ import (
 type Response struct {
 	*http.Response
 	rawBody []byte
+}
+
+// URL returns a request url.
+func (r *Response) URL() *url.URL {
+	return r.Response.Request.URL
+}
+
+// CookiesMap returns the response cookies by map.
+func (r *Response) CookiesMap() map[string]string {
+	cookies := map[string]string{}
+	for _, c := range r.Response.Cookies() {
+		cookies[c.Name] = c.Value
+	}
+	return cookies
 }
 
 // GetHeader returns header value.
