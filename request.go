@@ -34,6 +34,12 @@ func (r *Request) setBody(values *strings.Reader) {
 	}
 }
 
+// SetTimeout sets timeout.
+func (r *Request) SetTimeout(timeout int) *Request {
+	r.Timeout = time.Duration(timeout) * time.Second
+	return r
+}
+
 // Send sends request.
 // If method is POST and content-type is application/x-www-form-urlencoded,
 // the request data is urlencoded.

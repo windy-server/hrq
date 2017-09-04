@@ -26,6 +26,7 @@ func main() {
   - [Request](https://github.com/windy-server/hrq#response)
   - [Header](https://github.com/windy-server/hrq#header)
   - [Cookie](https://github.com/windy-server/hrq#cookie)
+  - [Timeout](https://github.com/windy-server/hrq#timeout)
 
 ## Install
 
@@ -103,6 +104,17 @@ fmt.Print(v)
 ```Go
 req, _ := hrq.Get("http://example.com")
 req.PutCookie("abc", "efg")
+res, _ := req.Send()
+cm := res.CookiesMap()
+```
+
+### Timeout
+
+```Go
+req, _ := hrq.Get("http://example.com")
+// This sets requset timeout to 30 seconds.
+// (Default timeout is 15 seconds.)
+req.SetTimeout(30)
 res, _ := req.Send()
 cm := res.CookiesMap()
 ```

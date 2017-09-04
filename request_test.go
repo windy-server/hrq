@@ -42,3 +42,12 @@ func TestPost(t *testing.T) {
 		t.Errorf("Content-Type is wrong by Post(). Content-Type is %v", ct)
 	}
 }
+
+func TestSetTimeout(t *testing.T) {
+	req, _ := Get("http://example.com")
+	req.SetTimeout(100)
+	timeout := time.Duration(100) * time.Second
+	if req.Timeout != timeout {
+		t.Errorf("req.SetTimeout() is wrong.")
+	}
+}
