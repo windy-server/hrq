@@ -116,5 +116,4 @@ req, _ := hrq.Get("http://example.com")
 // (Default timeout is 15 seconds.)
 req.SetTimeout(30)
 res, _ := req.Send()
-cm := res.CookiesMap()
 ```
