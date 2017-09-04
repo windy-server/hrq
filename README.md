@@ -15,6 +15,7 @@ func main() {
     res, _ := req.Send()
     s, _ := res.Text()
     fmt.Print(s)
+}
 ```
 
 ## Table of contents
