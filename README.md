@@ -99,6 +99,15 @@ v := res.GetHeader("foo")
 fmt.Print(v)
 ```
 
+### Cookie
+
+```Go
+req, _ := hrq.Get("http://example.com")
+req.PutCookie("abc", "efg")
+res, _ := req.Send()
+cm := res.CookiesMap()
+```
+
 ### Timeout
 
 ```Go
