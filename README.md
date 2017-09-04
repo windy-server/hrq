@@ -94,7 +94,7 @@ fmt.Print(s)
 req, _ := hrq.Get("http://example.com")
 req.SetHeader("abc", "efg")
 res, _ := req.Send()
-v, _ := res.GetHeader("foo")
+v := res.GetHeader("foo")
 fmt.Print(v)
 ```
 
