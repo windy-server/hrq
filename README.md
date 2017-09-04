@@ -3,12 +3,24 @@
 
 Http client like requests in Go
 
+## Install
+
+```
+dep ensure -add github.com/windy-server/hrq
+```
+
+or 
+
+```
+go get -u github.com/windy-server/hrq
+```
+
 
 ## Usage
 
 ### Request
 
-__hrq.Request inherits http.Request.__
+hrq.Request inherits http.Request.
 
 #### Get
 
@@ -39,7 +51,7 @@ fmt.Print(s)
 
 ### Response
 
-__hrq.Response inherits http.Response.__
+hrq.Response inherits http.Response.
 
 
 ```Go
@@ -50,4 +62,14 @@ b, _ := res.Content()
 // get request body by string
 s, _ := res.Text()
 fmt.Print(s)
+```
+
+### Header
+
+```Go
+req, _ := hrq.Get("http://example.com")
+req.SetHeader("abc", "efg")
+res, _ := req.Send()
+v, _ := res.GetHeader("foo")
+fmt.Print(v)
 ```
