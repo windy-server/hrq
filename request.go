@@ -2,6 +2,7 @@ package hrq
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -20,7 +21,7 @@ var DefaultContentType = "application/x-www-form-urlencoded"
 type Request struct {
 	*http.Request
 	Timeout time.Duration
-	Data    map[string][]string
+	Data    interface{}
 }
 
 func (r *Request) setBody(values *strings.Reader) {
@@ -48,7 +49,12 @@ func (r *Request) SetTimeout(timeout int) *Request {
 func (r *Request) Send() (res *Response, err error) {
 	if r.Method == "POST" && r.Data != nil {
 		if r.GetHeader("Content-Type") == "application/x-www-form-urlencoded" {
-			values := strings.NewReader(url.Values(r.Data).Encode())
+			data, ok := r.Data.(map[string][]string)
+			if !ok {
+				err := errors.New("data is not a map[string][]string at Request.Send()")
+				return nil, err
+			}
+			values := strings.NewReader(url.Values(data).Encode())
 			r.setBody(values)
 		} else if r.GetHeader("Content-Type") == "application/json" {
 			jsonBytes, err := json.Marshal(r.Data)
@@ -59,6 +65,19 @@ func (r *Request) Send() (res *Response, err error) {
 			r.setBody(values)
 		}
 	}
+	// else if r.Method == "POST" && r.GetHeader("Content-Type") == "multipart/form-data" {
+	// 	var buffer bytes.Buffer
+	// 	writer := multipart.NewWriter(&buffer)
+	// 	data, ok := r.Data.(map[string]string)
+	// 	if !ok {
+	// 		err := errors.New("data is not a map[string]string at Request.Send()")
+	// 		return nil, err
+	// 	}
+	// 	for k, v := range data {
+	// 		writer.WriteField(k, v)
+	// 	}
+	// }
+
 	cli := &http.Client{
 		Timeout: r.Timeout,
 	}
@@ -117,7 +136,7 @@ func Get(url string) (req *Request, err error) {
 }
 
 // Post make a request whose method is GET.
-func Post(url string, data map[string][]string) (req *Request, err error) {
+func Post(url string, data interface{}) (req *Request, err error) {
 	req, err = NewRequest("POST", url, nil, DefaultTimeout)
 	if err != nil {
 		return
