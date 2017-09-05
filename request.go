@@ -1,10 +1,12 @@
 package hrq
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"io"
 	"io/ioutil"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"strings"
@@ -64,19 +66,25 @@ func (r *Request) Send() (res *Response, err error) {
 			values := strings.NewReader(string(jsonBytes))
 			r.setBody(values)
 		}
+	} else if r.Method == "POST" && r.GetHeader("Content-Type") == "multipart/form-data" {
+		var buffer bytes.Buffer
+		writer := multipart.NewWriter(&buffer)
+		data, ok := r.Data.(map[string]string)
+		if !ok {
+			err := errors.New("data is not a map[string]string at Request.Send()")
+			return nil, err
+		}
+		for k, v := range data {
+			writer.WriteField(k, v)
+		}
+		r.SetHeader("Content-Type", writer.FormDataContentType())
+		r.ContentLength = int64(buffer.Len())
+		b := buffer.Bytes()
+		r.GetBody = func() (io.ReadCloser, error) {
+			reader := bytes.NewReader(b)
+			return ioutil.NopCloser(reader), nil
+		}
 	}
-	// else if r.Method == "POST" && r.GetHeader("Content-Type") == "multipart/form-data" {
-	// 	var buffer bytes.Buffer
-	// 	writer := multipart.NewWriter(&buffer)
-	// 	data, ok := r.Data.(map[string]string)
-	// 	if !ok {
-	// 		err := errors.New("data is not a map[string]string at Request.Send()")
-	// 		return nil, err
-	// 	}
-	// 	for k, v := range data {
-	// 		writer.WriteField(k, v)
-	// 	}
-	// }
 
 	cli := &http.Client{
 		Timeout: r.Timeout,

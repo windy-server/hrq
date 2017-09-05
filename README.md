@@ -66,7 +66,7 @@ data := map[string][]string{
 req, _ := hrq.Post("http://example.com", data)
 // When Content-Type is "application/x-www-form-urlencoded"(It is default),
 // the request data is urlencoded.
-// the request data must be a map[string][]string instance.
+// The request data must be a map[string][]string instance.
 // When Content-Type is "application/json",
 // the request data is converted to json string.
 req.SetHeader("Content-Type", "application/x-www-form-urlencoded")
