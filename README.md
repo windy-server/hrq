@@ -66,9 +66,10 @@ data := map[string][]string{
 req, _ := hrq.Post("http://example.com", data)
 // When Content-Type is "application/x-www-form-urlencoded"(It is default),
 // the request data is urlencoded.
+// the request data must be a map[string][]string instance.
 // When Content-Type is "application/json",
 // the request data is converted to json string.
-req.SetHeader("Content-Type", "application/json")
+req.SetHeader("Content-Type", "application/x-www-form-urlencoded")
 res, _ := req.Send()
 s, _ := res.Text()
 fmt.Print(s)
@@ -99,11 +100,13 @@ v := res.GetHeader("foo")
 fmt.Print(v)
 ```
 
-### Cookie
+### Timeout
 
 ```Go
 req, _ := hrq.Get("http://example.com")
-req.PutCookie("abc", "efg")
+// This sets requset timeout to 30 seconds.
+// (Default timeout is 15 seconds.)
+req.SetTimeout(30)
 res, _ := req.Send()
 cm := res.CookiesMap()
 ```
