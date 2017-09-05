@@ -110,3 +110,13 @@ req.SetTimeout(30)
 res, _ := req.Send()
 cm := res.CookiesMap()
 ```
+
+### Timeout
+
+```Go
+req, _ := hrq.Get("http://example.com")
+// This sets requset timeout to 30 seconds.
+// (Default timeout is 15 seconds.)
+req.SetTimeout(30)
+res, _ := req.Send()
+```
