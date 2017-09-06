@@ -118,3 +118,19 @@ req, _ := hrq.Get("http://example.com")
 req.SetTimeout(30)
 res, _ := req.Send()
 ```
+
+### File
+
+```Go
+data := map[string]string{
+    "foo": "123",
+    "bar": "456",
+}
+req, _ := hrq.Post("http://example.com", data)
+// When Content-Type is "multipart/form-data",
+// the request data is converted to fields.
+req.SetHeader("Content-Type", "multipart/form-data")
+file, _ := os.Open("foo.gif")
+req.AddFile("image/gif", "foo", "foo.gif", file)
+res, _ := req.Send()
+```

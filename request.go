@@ -4,11 +4,14 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
+	"net/textproto"
 	"net/url"
+	"os"
 	"strings"
 	"time"
 )
@@ -19,11 +22,20 @@ var DefaultTimeout = 15
 // DefaultContentType is a default content-type of request.
 var DefaultContentType = "application/x-www-form-urlencoded"
 
+// File is file for multipart/form.
+type File struct {
+	ContentType string
+	FieldName   string
+	Name        string
+	File        *os.File
+}
+
 // Request inherits http.Request.
 type Request struct {
 	*http.Request
 	Timeout time.Duration
 	Data    interface{}
+	Files   []*File
 }
 
 func (r *Request) setBody(values *strings.Reader) {
@@ -35,6 +47,18 @@ func (r *Request) setBody(values *strings.Reader) {
 		r := s
 		return ioutil.NopCloser(&r), nil
 	}
+}
+
+// AddFile sets file for multipart/form.
+func (r *Request) AddFile(contentType, fieldName, fileName string, file *os.File) *Request {
+	f := &File{
+		ContentType: contentType,
+		FieldName:   fieldName,
+		Name:        fileName,
+		File:        file,
+	}
+	r.Files = append(r.Files, f)
+	return r
 }
 
 // SetTimeout sets timeout.
@@ -77,6 +101,22 @@ func (r *Request) Send() (res *Response, err error) {
 		for k, v := range data {
 			writer.WriteField(k, v)
 		}
+		for _, file := range r.Files {
+			part := make(textproto.MIMEHeader)
+			part.Set("Content-Type", file.ContentType)
+			desc := fmt.Sprintf(`form-data; name="%s"; filename="%s"`, file.FieldName, file.Name)
+			part.Set("Content-Disposition", desc)
+			fileWriter, err := writer.CreatePart(part)
+			if err != nil {
+				return nil, err
+			}
+			_, err = io.Copy(fileWriter, file.File)
+			if err != nil {
+				return nil, err
+			}
+			defer file.File.Close()
+		}
+		writer.Close()
 		r.SetHeader("Content-Type", writer.FormDataContentType())
 		r.ContentLength = int64(buffer.Len())
 		b := buffer.Bytes()
@@ -150,6 +190,7 @@ func Post(url string, data interface{}) (req *Request, err error) {
 		return
 	}
 	req.SetHeader("Content-Type", DefaultContentType)
+	req.Files = []*File{}
 	req.Data = data
 	return
 }
