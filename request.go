@@ -124,6 +124,8 @@ func (r *Request) Send() (res *Response, err error) {
 			reader := bytes.NewReader(b)
 			return ioutil.NopCloser(reader), nil
 		}
+		reader := bytes.NewReader(b)
+		r.Body = ioutil.NopCloser(reader)
 	}
 
 	cli := &http.Client{
