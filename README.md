@@ -7,7 +7,7 @@ Http client like requests in Go
 import (
 	"fmt"
 
-	hrq "github.com/windy-server/hrq"
+	"github.com/windy-server/hrq"
 )
 
 func main() {
