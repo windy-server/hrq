@@ -73,7 +73,7 @@ func (r *Request) SetTimeout(timeout int) *Request {
 // If method is POST and content-type is application/json,
 // the request data is converted to json string.
 func (r *Request) Send() (res *Response, err error) {
-	if r.Method == "POST" && r.Data != nil {
+	if r.Method == "POST" && r.Data != nil && r.GetHeader("Content-Type") != "multipart/form-data" {
 		if r.GetHeader("Content-Type") == "application/x-www-form-urlencoded" {
 			data, ok := r.Data.(map[string][]string)
 			if !ok {
