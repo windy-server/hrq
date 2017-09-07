@@ -23,7 +23,7 @@ func main() {
 * [Install](https://github.com/windy-server/hrq#install)
 * [Usage](https://github.com/windy-server/hrq#usage)
   - [Request](https://github.com/windy-server/hrq#request)
-  - [Request](https://github.com/windy-server/hrq#response)
+  - [Response](https://github.com/windy-server/hrq#response)
   - [Header](https://github.com/windy-server/hrq#header)
   - [Cookie](https://github.com/windy-server/hrq#cookie)
   - [Timeout](https://github.com/windy-server/hrq#timeout)
