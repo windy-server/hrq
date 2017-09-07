@@ -27,6 +27,7 @@ func main() {
   - [Header](https://github.com/windy-server/hrq#header)
   - [Cookie](https://github.com/windy-server/hrq#cookie)
   - [Timeout](https://github.com/windy-server/hrq#timeout)
+  - [File](https://github.com/windy-server/hrq#file)
 
 ## Install
 
