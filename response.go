@@ -2,6 +2,7 @@ package hrq
 
 import (
 	"bytes"
+	"encoding/json"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -92,4 +93,14 @@ func (r *Response) Text() (text string, err error) {
 	}
 	text = string(bs)
 	return
+}
+
+// JSON returns unmarshal response body.
+func (r *Response) JSON() (result interface{}, err error) {
+	rawBody, err := r.Content()
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(rawBody, &result)
+	return result, err
 }

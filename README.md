@@ -28,6 +28,7 @@ func main() {
   - [Cookie](https://github.com/windy-server/hrq#cookie)
   - [Timeout](https://github.com/windy-server/hrq#timeout)
   - [File](https://github.com/windy-server/hrq#file)
+  - [JSON](https://github.com/windy-server/hrq#json)
 
 ## Install
 
@@ -70,6 +71,8 @@ req, _ := hrq.Post("http://example.com", data)
 // The request data must be a map[string][]string instance.
 // When Content-Type is "application/json",
 // the request data is converted to json string.
+// When Content-Type is "multipart/form-data",
+// the request data is converted to fields.
 req.SetHeader("Content-Type", "application/x-www-form-urlencoded")
 res, _ := req.Send()
 s, _ := res.Text()
@@ -134,4 +137,19 @@ req.SetHeader("Content-Type", "multipart/form-data")
 file, _ := os.Open("foo.gif")
 req.AddFile("image/gif", "foo", "foo.gif", file)
 res, _ := req.Send()
+```
+
+### JSON
+
+```Go
+data := map[string][]string{
+    "foo": "123",
+    "bar": "456",
+}
+req, _ := hrq.Post("http://example.com", data)
+// When Content-Type is "application/json",
+// the request data is converted to json string.
+req.SetHeader("Content-Type", "application/json")
+res, _ := req.Send()
+data, _ := res.JSON()
 ```
