@@ -38,6 +38,10 @@ type Request struct {
 	Files   []*File
 }
 
+func (r *Request) isPostOrPut() bool {
+	return r.Method == "POST" || r.Method == "PUT"
+}
+
 func (r *Request) setBody(values *strings.Reader) {
 	body := ioutil.NopCloser(values)
 	r.Body = body
@@ -73,7 +77,7 @@ func (r *Request) SetTimeout(timeout int) *Request {
 // If method is POST and content-type is application/json,
 // the request data is converted to json string.
 func (r *Request) Send() (res *Response, err error) {
-	if r.Method == "POST" && r.Data != nil && r.HeaderValue("Content-Type") != "multipart/form-data" {
+	if r.isPostOrPut() && r.Data != nil && r.HeaderValue("Content-Type") != "multipart/form-data" {
 		if r.HeaderValue("Content-Type") == "application/x-www-form-urlencoded" {
 			data, ok := r.Data.(map[string][]string)
 			if !ok {
@@ -90,7 +94,7 @@ func (r *Request) Send() (res *Response, err error) {
 			values := strings.NewReader(string(jsonBytes))
 			r.setBody(values)
 		}
-	} else if r.Method == "POST" && r.HeaderValue("Content-Type") == "multipart/form-data" {
+	} else if r.isPostOrPut() && r.HeaderValue("Content-Type") == "multipart/form-data" {
 		var buffer bytes.Buffer
 		writer := multipart.NewWriter(&buffer)
 		data, ok := r.Data.(map[string]string)
@@ -185,14 +189,25 @@ func Get(url string) (req *Request, err error) {
 	return
 }
 
-// Post make a request whose method is GET.
-func Post(url string, data interface{}) (req *Request, err error) {
-	req, err = NewRequest("POST", url, nil, DefaultTimeout)
+func postOrPut(method, url string, data interface{}) (req *Request, err error) {
+	req, err = NewRequest(method, url, nil, DefaultTimeout)
 	if err != nil {
 		return
 	}
 	req.SetHeader("Content-Type", DefaultContentType)
 	req.Files = []*File{}
 	req.Data = data
+	return
+}
+
+// Post make a request whose method is POST.
+func Post(url string, data interface{}) (req *Request, err error) {
+	req, err = postOrPut("POST", url, data)
+	return
+}
+
+// Put make a request whose method is PUT.
+func Put(url string, data interface{}) (req *Request, err error) {
+	req, err = postOrPut("PUT", url, data)
 	return
 }
