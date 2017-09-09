@@ -65,12 +65,12 @@ func TestGetRequest(t *testing.T) {
 func TestHeader(t *testing.T) {
 	r, _ := Get("http://example.com")
 	r.SetHeader("foo", "bar")
-	v := r.GetHeader("foo")
+	v := r.HeaderValue("foo")
 	if v != "bar" {
 		t.Errorf("SetHeader is wrong. v is %v", v)
 	}
 	r.DelHeader("foo")
-	v = r.GetHeader("foo")
+	v = r.HeaderValue("foo")
 	if v != "" {
 		t.Errorf("DelHeader is wrong. v is %v", v)
 	}
@@ -94,7 +94,7 @@ func TestPost(t *testing.T) {
 	if req.Timeout != time.Duration(DefaultTimeout)*time.Second {
 		t.Errorf("req.Timeout is wrong by Post(). req.Timeout is %v", req.Timeout)
 	}
-	ct := req.GetHeader("Content-Type")
+	ct := req.HeaderValue("Content-Type")
 	if ct != DefaultContentType {
 		t.Errorf("Content-Type is wrong by Post(). Content-Type is %v", ct)
 	}
