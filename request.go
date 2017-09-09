@@ -189,6 +189,24 @@ func Get(url string) (req *Request, err error) {
 	return
 }
 
+// Delete make a request whose method is DELETE.
+func Delete(url string) (req *Request, err error) {
+	req, err = NewRequest("DELETE", url, nil, DefaultTimeout)
+	return
+}
+
+// Head make a request whose method is HEAD.
+func Head(url string) (req *Request, err error) {
+	req, err = NewRequest("HEAD", url, nil, DefaultTimeout)
+	return
+}
+
+// Options make a request whose method is OPTIONS.
+func Options(url string) (req *Request, err error) {
+	req, err = NewRequest("OPTIONS", url, nil, DefaultTimeout)
+	return
+}
+
 func postOrPut(method, url string, data interface{}) (req *Request, err error) {
 	req, err = NewRequest(method, url, nil, DefaultTimeout)
 	if err != nil {
