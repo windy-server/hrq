@@ -73,8 +73,8 @@ func (r *Request) SetTimeout(timeout int) *Request {
 // If method is POST and content-type is application/json,
 // the request data is converted to json string.
 func (r *Request) Send() (res *Response, err error) {
-	if r.Method == "POST" && r.Data != nil && r.GetHeader("Content-Type") != "multipart/form-data" {
-		if r.GetHeader("Content-Type") == "application/x-www-form-urlencoded" {
+	if r.Method == "POST" && r.Data != nil && r.HeaderValue("Content-Type") != "multipart/form-data" {
+		if r.HeaderValue("Content-Type") == "application/x-www-form-urlencoded" {
 			data, ok := r.Data.(map[string][]string)
 			if !ok {
 				err := errors.New("data is not a map[string][]string at Request.Send()")
@@ -82,7 +82,7 @@ func (r *Request) Send() (res *Response, err error) {
 			}
 			values := strings.NewReader(url.Values(data).Encode())
 			r.setBody(values)
-		} else if r.GetHeader("Content-Type") == "application/json" {
+		} else if r.HeaderValue("Content-Type") == "application/json" {
 			jsonBytes, err := json.Marshal(r.Data)
 			if err != nil {
 				return nil, err
@@ -90,7 +90,7 @@ func (r *Request) Send() (res *Response, err error) {
 			values := strings.NewReader(string(jsonBytes))
 			r.setBody(values)
 		}
-	} else if r.Method == "POST" && r.GetHeader("Content-Type") == "multipart/form-data" {
+	} else if r.Method == "POST" && r.HeaderValue("Content-Type") == "multipart/form-data" {
 		var buffer bytes.Buffer
 		writer := multipart.NewWriter(&buffer)
 		data, ok := r.Data.(map[string]string)
@@ -147,8 +147,8 @@ func (r *Request) SetHeader(key, value string) *Request {
 	return r
 }
 
-// GetHeader returns a value of request header.
-func (r *Request) GetHeader(key string) string {
+// HeaderValue returns a value of request header.
+func (r *Request) HeaderValue(key string) string {
 	return r.Header.Get(key)
 }
 
