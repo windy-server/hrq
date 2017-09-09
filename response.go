@@ -22,6 +22,16 @@ func (r *Response) URL() *url.URL {
 	return r.Response.Request.URL
 }
 
+// CookieValue returns a cookie value.
+func (r *Response) CookieValue(name string) string {
+	for _, c := range r.Response.Cookies() {
+		if c.Name == name {
+			return c.Value
+		}
+	}
+	return ""
+}
+
 // CookiesMap returns the response cookies by map.
 func (r *Response) CookiesMap() map[string]string {
 	cookies := map[string]string{}
@@ -31,8 +41,8 @@ func (r *Response) CookiesMap() map[string]string {
 	return cookies
 }
 
-// GetHeader returns header value.
-func (r *Response) GetHeader(name string) string {
+// HeaderValue returns header value.
+func (r *Response) HeaderValue(name string) string {
 	lowerName := strings.ToLower(name)
 	for k, v := range r.Header {
 		if strings.ToLower(k) == lowerName {
@@ -58,7 +68,7 @@ func (r *Response) Content() ([]byte, error) {
 
 // ContentType returns content-type in response header..
 func (r *Response) ContentType() string {
-	return r.GetHeader("Content-Type")
+	return r.HeaderValue("Content-Type")
 }
 
 // Encode returns encode of response body.

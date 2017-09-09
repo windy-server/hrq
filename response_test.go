@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestGetHeader(t *testing.T) {
+func TestHeaderValue(t *testing.T) {
 	res := &Response{
 		Response: &http.Response{
 			Header: http.Header{},
@@ -14,7 +14,7 @@ func TestGetHeader(t *testing.T) {
 	res.Header = http.Header(map[string][]string{
 		"foo": []string{"bar"},
 	})
-	value := res.GetHeader("foo")
+	value := res.HeaderValue("foo")
 	if value != "bar" {
 		t.Errorf("Response header value is wrong. value is %v", value)
 	}

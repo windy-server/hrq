@@ -5,9 +5,9 @@ Http client like requests in Go
 
 ```Go
 import (
-	"fmt"
+    "fmt"
 
-	"github.com/windy-server/hrq"
+    "github.com/windy-server/hrq"
 )
 
 func main() {
@@ -100,7 +100,7 @@ fmt.Print(s)
 req, _ := hrq.Get("http://example.com")
 req.SetHeader("abc", "efg")
 res, _ := req.Send()
-v := res.GetHeader("foo")
+v := res.HeaderValue("foo")
 fmt.Print(v)
 ```
 
@@ -110,6 +110,7 @@ fmt.Print(v)
 req, _ := hrq.Get("http://example.com")
 req.PutCookie("abc", "efg")
 res, _ := req.Send()
+v := res.CookieValue("foo")
 cm := res.CookiesMap()
 ```
 

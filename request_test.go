@@ -56,6 +56,10 @@ func TestGetRequest(t *testing.T) {
 	if cookies["a"] != cm["a"] || cookies["b"] != cm["b"] {
 		t.Errorf("CookiesMap() is wrong in TestGetRequest(). cm is %v", cm)
 	}
+	a := res.CookieValue("a")
+	if a != "b" {
+		t.Errorf("CookieValue() is wrong in TestGetRequest(). a is %v", a)
+	}
 }
 
 func TestHeader(t *testing.T) {
