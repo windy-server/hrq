@@ -16,11 +16,15 @@ import (
 	"time"
 )
 
+const applicationFormUrlencoded = "application/x-www-form-urlencoded"
+const applicationJSON = "application/json"
+const multipartFormData = "multipart/form-data"
+
 // DefaultTimeout is seconds of timeout.
 var DefaultTimeout = 15
 
 // DefaultContentType is a default content-type of request.
-var DefaultContentType = "application/x-www-form-urlencoded"
+var DefaultContentType = applicationFormUrlencoded
 
 // File is file for multipart/form.
 type File struct {
@@ -78,7 +82,7 @@ func (r *Request) SetTimeout(timeout int) *Request {
 // the request data is converted to json string.
 func (r *Request) Send() (res *Response, err error) {
 	if r.isPostOrPut() && r.Data != nil && r.HeaderValue("Content-Type") != "multipart/form-data" {
-		if r.HeaderValue("Content-Type") == "application/x-www-form-urlencoded" {
+		if r.HeaderValue("Content-Type") == applicationFormUrlencoded {
 			data, ok := r.Data.(map[string][]string)
 			if !ok {
 				err := errors.New("data is not a map[string][]string at Request.Send()")
@@ -86,7 +90,7 @@ func (r *Request) Send() (res *Response, err error) {
 			}
 			values := strings.NewReader(url.Values(data).Encode())
 			r.setBody(values)
-		} else if r.HeaderValue("Content-Type") == "application/json" {
+		} else if r.HeaderValue("Content-Type") == applicationJSON {
 			jsonBytes, err := json.Marshal(r.Data)
 			if err != nil {
 				return nil, err
@@ -94,7 +98,7 @@ func (r *Request) Send() (res *Response, err error) {
 			values := strings.NewReader(string(jsonBytes))
 			r.setBody(values)
 		}
-	} else if r.isPostOrPut() && r.HeaderValue("Content-Type") == "multipart/form-data" {
+	} else if r.isPostOrPut() && r.HeaderValue("Content-Type") == multipartFormData {
 		var buffer bytes.Buffer
 		writer := multipart.NewWriter(&buffer)
 		data, ok := r.Data.(map[string]string)
