@@ -83,7 +83,7 @@ func TestPostRequest(t *testing.T) {
 			t.Errorf("foo is wrong in TestGetRequest(). foo is %v", foo)
 		}
 		bar := r.PostForm["bar"][0]
-		if bar != "456" {
+		if bar != "&456" {
 			t.Errorf("bar is wrong in TestGetRequest(). bar is %v", bar)
 		}
 		c1, _ := r.Cookie("c1")
@@ -110,10 +110,10 @@ func TestPostRequest(t *testing.T) {
 	url := server.URL
 	data := map[string][]string{
 		"foo": []string{"123"},
-		"bar": []string{"456"},
+		"bar": []string{"&456"},
 	}
 	req, _ := Post(url, data)
-	req.SetHeader("Content-Type", "application/x-www-form-urlencoded")
+	req.SetApplicationFormUrlencoded()
 	req.PutCookie("c1", "v1")
 	req.PutCookie("c2", "v2")
 	res, _ := req.Send()

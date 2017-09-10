@@ -75,13 +75,28 @@ func (r *Request) SetTimeout(timeout int) *Request {
 	return r
 }
 
+// SetApplicationFormUrlencoded is an alias of req.SetHeader("Content-Type", "application/x-www-form-urlencoded").
+func (r *Request) SetApplicationFormUrlencoded() *Request {
+	return r.SetHeader("Content-Type", applicationFormUrlencoded)
+}
+
+// SetApplicationJSON is an alias of req.SetHeader("Content-Type", "application/json").
+func (r *Request) SetApplicationJSON() *Request {
+	return r.SetHeader("Content-Type", applicationJSON)
+}
+
+// SetMultipartFormData is an alias of req.SetHeader("Content-Type", "multipart/form-data").
+func (r *Request) SetMultipartFormData() *Request {
+	return r.SetHeader("Content-Type", multipartFormData)
+}
+
 // Send sends request.
 // If method is POST and content-type is application/x-www-form-urlencoded,
 // the request data is urlencoded.
 // If method is POST and content-type is application/json,
 // the request data is converted to json string.
 func (r *Request) Send() (res *Response, err error) {
-	if r.isPostOrPut() && r.Data != nil && r.HeaderValue("Content-Type") != "multipart/form-data" {
+	if r.isPostOrPut() && r.Data != nil && r.HeaderValue("Content-Type") != multipartFormData {
 		if r.HeaderValue("Content-Type") == applicationFormUrlencoded {
 			data, ok := r.Data.(map[string][]string)
 			if !ok {
