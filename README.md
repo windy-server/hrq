@@ -73,7 +73,7 @@ req, _ := hrq.Post("http://example.com", data)
 // the request data is converted to json string.
 // When Content-Type is "multipart/form-data",
 // the request data is converted to fields.
-req.SetHeader("Content-Type", "application/x-www-form-urlencoded")
+req.SetApplicationFormUrlencoded()
 res, _ := req.Send()
 s, _ := res.Text()
 fmt.Print(s)
@@ -134,7 +134,7 @@ data := map[string]string{
 req, _ := hrq.Post("http://example.com", data)
 // When Content-Type is "multipart/form-data",
 // the request data is converted to fields.
-req.SetHeader("Content-Type", "multipart/form-data")
+req.SetMultipartFormData()
 file, _ := os.Open("foo.gif")
 req.AddFile("image/gif", "foo", "foo.gif", file)
 res, _ := req.Send()
@@ -150,7 +150,7 @@ data := map[string][]string{
 req, _ := hrq.Post("http://example.com", data)
 // When Content-Type is "application/json",
 // the request data is converted to json string.
-req.SetHeader("Content-Type", "application/json")
+req.SetApplicationJSON()
 res, _ := req.Send()
 data, _ := res.JSON()
 ```
