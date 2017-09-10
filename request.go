@@ -85,7 +85,7 @@ func (r *Request) SetApplicationJSON() *Request {
 	return r.SetHeader("Content-Type", applicationJSON)
 }
 
-// SetMultipartFormData is an alias of req.SetHeader("Content-Type", "application/json").
+// SetMultipartFormData is an alias of req.SetHeader("Content-Type", "multipart/form-data").
 func (r *Request) SetMultipartFormData() *Request {
 	return r.SetHeader("Content-Type", multipartFormData)
 }
