@@ -135,6 +135,28 @@ func TestPostRequest(t *testing.T) {
 	}
 }
 
+func TestMultipartFormData(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		r.ParseMultipartForm(0)
+		foo := r.FormValue("foo")
+		if foo != "123" {
+			t.Errorf("foo is wrong in TestGetRequest(). foo is %v", foo)
+		}
+		bar := r.FormValue("bar")
+		if bar != "&456" {
+			t.Errorf("bar is wrong in TestGetRequest(). bar is %v", bar)
+		}
+	}))
+	url := server.URL
+	data := map[string]string{
+		"foo": "123",
+		"bar": "&456",
+	}
+	req, _ := Post(url, data)
+	req.SetMultipartFormData()
+	req.Send()
+}
+
 func TestHeader(t *testing.T) {
 	r, _ := Get("http://example.com")
 	r.SetHeader("foo", "bar")
