@@ -52,7 +52,11 @@ func TestGetRequest(t *testing.T) {
 		}
 		fmt.Fprintf(w, "FooBar")
 	}))
-	url := server.URL + "?abc=def&hij=klm"
+	params := map[string]string{
+		"abc": "def",
+		"hij": "klm",
+	}
+	url := MakeURL(server.URL, params)
 	req, _ := Get(url)
 	req.SetHeader("h1", "h2")
 	req.SetHeader("h3", "h4")
