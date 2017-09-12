@@ -16,6 +16,6 @@ func TestHeaderValue(t *testing.T) {
 	})
 	value := res.HeaderValue("foo")
 	if value != "bar" {
-		t.Fatalf("Response header value is wrong. value is %v", value)
+		t.Fatalf("Response header value is wrong. value is %#v", value)
 	}
 }

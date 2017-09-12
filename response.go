@@ -106,11 +106,11 @@ func (r *Response) Text() (text string, err error) {
 }
 
 // JSON returns unmarshal response body.
-func (r *Response) JSON(result *interface{}) (err error) {
+func (r *Response) JSON(t interface{}) (interface{}, error) {
 	rawBody, err := r.Content()
 	if err != nil {
-		return
+		return nil, err
 	}
-	err = json.Unmarshal(rawBody, result)
-	return
+	err = json.Unmarshal(rawBody, &t)
+	return t, err
 }
