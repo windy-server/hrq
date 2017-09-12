@@ -52,7 +52,12 @@ hrq.Request inherits http.Request.
 #### Get
 
 ```Go
-req, _ := hrq.Get("http://example.com")
+params := map[string]string{
+    "foo": "123",
+    "bar": "456",
+}
+url := hrq.MakeURL("http://example.com", params)
+req, _ := hrq.Get(url)
 res, _ := req.Send()
 s, _ := res.Text()
 fmt.Print(s)
