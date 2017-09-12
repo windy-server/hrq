@@ -153,5 +153,5 @@ req, _ := hrq.Post("http://example.com", data)
 req.SetApplicationJSON()
 res, _ := req.Send()
 var result map[string]string
-data, _ := res.JSON(&result)
+data, _ := res.JSON(result)
 ```
