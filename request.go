@@ -98,12 +98,13 @@ func (r *Request) SetMultipartFormData() *Request {
 func (r *Request) Send() (res *Response, err error) {
 	if r.isPostOrPut() && r.Data != nil && r.HeaderValue("Content-Type") != multipartFormData {
 		if r.HeaderValue("Content-Type") == applicationFormUrlencoded {
-			data, ok := r.Data.(map[string][]string)
+			data, ok := r.Data.(map[string]string)
 			if !ok {
-				err := errors.New("data is not a map[string][]string at Request.Send()")
+				err := errors.New("data is not a map[string]string at Request.Send()")
 				return nil, err
 			}
-			values := strings.NewReader(url.Values(data).Encode())
+			mapStringList := mapStringList(data)
+			values := strings.NewReader(url.Values(mapStringList).Encode())
 			r.setBody(values)
 		} else if r.HeaderValue("Content-Type") == applicationJSON {
 			jsonBytes, err := json.Marshal(r.Data)
