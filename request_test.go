@@ -114,9 +114,9 @@ func TestPostRequest(t *testing.T) {
 		fmt.Fprintf(w, "FooBar")
 	}))
 	url := server.URL
-	data := map[string][]string{
-		"foo": []string{"123"},
-		"bar": []string{"&456"},
+	data := map[string]string{
+		"foo": "123",
+		"bar": "&456",
 	}
 	req, _ := Post(url, data)
 	req.SetApplicationFormUrlencoded()
@@ -189,16 +189,11 @@ func TestApplicationJSON(t *testing.T) {
 	req.SetApplicationJSON()
 	res, _ := req.Send()
 	var d []string
-	j, _ := res.JSON(d)
-	switch list := j.(type) {
-	case []interface{}:
-		v1, _ := list[0].(string)
-		v2, _ := list[0].(string)
-		if v1 != "abc" && v2 != "efg" {
-			t.Fatalf("list is wrong in TestJSON(). list is %#v", list)
-		}
-	default:
-		t.Fatalf("list is wrong in TestJSON(). list is %#v", list)
+	res.JSON(&d)
+	v1 := d[0]
+	v2 := d[1]
+	if v1 != "abc" && v2 != "efg" {
+		t.Fatalf("list is wrong in TestJSON(). d is %#v", d)
 	}
 }
 

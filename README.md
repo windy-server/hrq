@@ -56,6 +56,8 @@ params := map[string]string{
     "foo": "123",
     "bar": "456",
 }
+
+// http://example.com?foo=123&bar=456
 url := hrq.MakeURL("http://example.com", params)
 req, _ := hrq.Get(url)
 res, _ := req.Send()
@@ -66,20 +68,19 @@ fmt.Print(s)
 #### Post
 
 ```Go
-data := map[string][]string{
-    "foo": []string{"123"},
-    "bar": []string{"456"},
+data := map[string]string{
+    "foo": "123",
+    "bar": "456",
 }
 req, _ := hrq.Post("http://example.com", data)
 // When Content-Type is "application/x-www-form-urlencoded"(It is default),
 // the request data is urlencoded.
-// The request data must be a map[string][]string instance.
+// The request data must be a map[string]string instance.
 // When Content-Type is "application/json",
 // the request data is converted to json string.
 // When Content-Type is "multipart/form-data",
 // the request data is converted to fields.
-req.SetApplicationFormUrlencoded()
-res, _ := req.Send()
+res, _ := req.SetApplicationFormUrlencoded().Send()
 s, _ := res.Text()
 fmt.Print(s)
 ```
@@ -158,5 +159,5 @@ req, _ := hrq.Post("http://example.com", data)
 req.SetApplicationJSON()
 res, _ := req.Send()
 var result map[string]string
-data, _ := res.JSON(result)
+err := res.JSON(&result)
 ```
