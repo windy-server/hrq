@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
+	"net/http/cookiejar"
 	"net/textproto"
 	"net/url"
 	"os"
@@ -150,9 +151,13 @@ func (r *Request) Send() (res *Response, err error) {
 		reader := bytes.NewReader(b)
 		r.Body = ioutil.NopCloser(reader)
 	}
-
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		return
+	}
 	cli := &http.Client{
 		Timeout: r.Timeout,
+		Jar:     jar,
 	}
 	response, err := cli.Do(r.Request)
 	if err != nil {
