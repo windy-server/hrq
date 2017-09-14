@@ -235,6 +235,20 @@ func TestPost(t *testing.T) {
 	}
 }
 
+func TestPut(t *testing.T) {
+	req, _ := Put("http://example.com", nil)
+	if req.Method != "PUT" {
+		t.Fatalf("req.Method is wrong by Put(). req.Method is %#v", req.Method)
+	}
+	if req.Timeout != time.Duration(DefaultTimeout)*time.Second {
+		t.Fatalf("req.Timeout is wrong by Put(). req.Timeout is %#v", req.Timeout)
+	}
+	ct := req.HeaderValue("Content-Type")
+	if ct != DefaultContentType {
+		t.Fatalf("Content-Type is wrong by Put(). Content-Type is %#v", ct)
+	}
+}
+
 func TestSetTimeout(t *testing.T) {
 	req, _ := Get("http://example.com")
 	req.SetTimeout(100)
