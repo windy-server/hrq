@@ -221,6 +221,36 @@ func TestGet(t *testing.T) {
 	}
 }
 
+func TestDelete(t *testing.T) {
+	req, _ := Delete("http://example.com")
+	if req.Method != "DELETE" {
+		t.Fatalf("req.Method is wrong by Delete(). req.Method is %#v", req.Method)
+	}
+	if req.Timeout != time.Duration(DefaultTimeout)*time.Second {
+		t.Fatalf("req.Timeout is wrong by Delete(). req.Timeout is %#v", req.Timeout)
+	}
+}
+
+func TestHead(t *testing.T) {
+	req, _ := Head("http://example.com")
+	if req.Method != "HEAD" {
+		t.Fatalf("req.Method is wrong by Head(). req.Method is %#v", req.Method)
+	}
+	if req.Timeout != time.Duration(DefaultTimeout)*time.Second {
+		t.Fatalf("req.Timeout is wrong by Head(). req.Timeout is %#v", req.Timeout)
+	}
+}
+
+func TestOptions(t *testing.T) {
+	req, _ := Options("http://example.com")
+	if req.Method != "OPTIONS" {
+		t.Fatalf("req.Method is wrong by Options(). req.Method is %#v", req.Method)
+	}
+	if req.Timeout != time.Duration(DefaultTimeout)*time.Second {
+		t.Fatalf("req.Timeout is wrong by Options(). req.Timeout is %#v", req.Timeout)
+	}
+}
+
 func TestPost(t *testing.T) {
 	req, _ := Post("http://example.com", nil)
 	if req.Method != "POST" {
