@@ -14,6 +14,8 @@ import (
 // Response inherits http.Response.
 type Response struct {
 	*http.Response
+	// History is the redirect history.
+	History []*http.Request
 	rawBody []byte
 }
 
