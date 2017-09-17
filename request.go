@@ -160,12 +160,21 @@ func (r *Request) Send() (res *Response, err error) {
 		Timeout: r.Timeout,
 		Jar:     jar,
 	}
+	requestHistory := []*http.Request{}
+	cli.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		requestHistory = via
+		if len(via) >= 10 {
+			return errors.New("there are 10 redirects")
+		}
+		return nil
+	}
 	response, err := cli.Do(r.Request)
 	if err != nil {
 		return
 	}
 	res = &Response{
 		Response: response,
+		History:  requestHistory,
 	}
 	return
 }

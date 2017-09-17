@@ -20,7 +20,7 @@ func main() {
 
 ## Table of contents
 
-* [Install](https://github.com/windy-server/hrq#install)
+* [Installation](https://github.com/windy-server/hrq#installation)
 * [Usage](https://github.com/windy-server/hrq#usage)
   - [Request](https://github.com/windy-server/hrq#request)
   - [Response](https://github.com/windy-server/hrq#response)
@@ -29,8 +29,9 @@ func main() {
   - [Timeout](https://github.com/windy-server/hrq#timeout)
   - [File](https://github.com/windy-server/hrq#file)
   - [JSON](https://github.com/windy-server/hrq#json)
+  - [History](https://github.com/windy-server/hrq#history)
 
-## Install
+## Installation
 
 ```
 dep ensure -add github.com/windy-server/hrq
@@ -160,4 +161,15 @@ req.SetApplicationJSON()
 res, _ := req.Send()
 var result map[string]string
 err := res.JSON(&result)
+```
+
+### History
+
+```Go
+req, _ := hrq.Get("http://example.com")
+res, _ := req.Send()
+// The redirect history by http.Request slice
+history := req.History
+// The recent request
+res.Request
 ```
