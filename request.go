@@ -43,6 +43,10 @@ type Request struct {
 	Files   []*File
 }
 
+func (r *Request) contentType() string {
+	return r.HeaderValue("Content-Type")
+}
+
 func (r *Request) isPostOrPut() bool {
 	return r.Method == "POST" || r.Method == "PUT"
 }
@@ -98,7 +102,7 @@ func (r *Request) SetMultipartFormData() *Request {
 // the request data is converted to json string.
 func (r *Request) Send() (res *Response, err error) {
 	if r.isPostOrPut() && r.Data != nil && r.HeaderValue("Content-Type") != multipartFormData {
-		if r.HeaderValue("Content-Type") == applicationFormUrlencoded {
+		if r.contentType() == applicationFormUrlencoded {
 			data, ok := r.Data.(map[string]string)
 			if !ok {
 				err := errors.New("data is not a map[string]string at Request.Send()")
@@ -107,7 +111,7 @@ func (r *Request) Send() (res *Response, err error) {
 			mapStringList := mapStringList(data)
 			values := strings.NewReader(url.Values(mapStringList).Encode())
 			r.setBody(values)
-		} else if r.HeaderValue("Content-Type") == applicationJSON {
+		} else if r.contentType() == applicationJSON {
 			jsonBytes, err := json.Marshal(r.Data)
 			if err != nil {
 				return nil, err
@@ -115,7 +119,7 @@ func (r *Request) Send() (res *Response, err error) {
 			values := strings.NewReader(string(jsonBytes))
 			r.setBody(values)
 		}
-	} else if r.isPostOrPut() && r.HeaderValue("Content-Type") == multipartFormData {
+	} else if r.isPostOrPut() && r.contentType() == multipartFormData {
 		var buffer bytes.Buffer
 		writer := multipart.NewWriter(&buffer)
 		data, ok := r.Data.(map[string]string)
