@@ -2,6 +2,7 @@ package hrq
 
 import (
 	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -40,6 +41,9 @@ type Request struct {
 	Timeout time.Duration
 	Data    interface{}
 	Files   []*File
+	// Gzip is a flag to decide whether to compress by gzip or not.
+	// (defaut false)
+	Gzip bool
 }
 
 func (r *Request) contentType() string {
@@ -51,12 +55,25 @@ func (r *Request) isPostOrPut() bool {
 }
 
 func (r *Request) setBody(b []byte) {
+	if r.Gzip {
+		var buffer bytes.Buffer
+		writer := gzip.NewWriter(&buffer)
+		writer.Write(b)
+		writer.Close()
+		b = buffer.Bytes()
+	}
 	r.GetBody = func() (io.ReadCloser, error) {
 		reader := bytes.NewReader(b)
 		return ioutil.NopCloser(reader), nil
 	}
 	reader := bytes.NewReader(b)
 	r.Body = ioutil.NopCloser(reader)
+}
+
+// UseGzip makes Request.Gzip to true.
+func (r *Request) UseGzip() *Request {
+	r.Gzip = true
+	return r
 }
 
 // AddFile sets file for multipart/form.
@@ -163,6 +180,9 @@ func (r *Request) Send() (res *Response, err error) {
 		}
 		return nil
 	}
+	if r.Gzip {
+		r.SetHeader("Content-Encoding", "gzip")
+	}
 	response, err := cli.Do(r.Request)
 	if err != nil {
 		return
@@ -208,6 +228,7 @@ func NewRequest(method, url string, body io.Reader, timeoutSecond int) (req *Req
 	req = &Request{
 		Request: request,
 		Timeout: timeout,
+		Gzip:    false,
 	}
 	return
 }
