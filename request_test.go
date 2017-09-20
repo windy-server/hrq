@@ -180,6 +180,10 @@ func TestGzipRequest(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 		reader, _ := gzip.NewReader(r.Body)
+		contentEncoding := r.Header["Content-Encoding"][0]
+		if contentEncoding != "gzip" {
+			t.Fatalf("contentEncoding is wrong. %#v", contentEncoding)
+		}
 		defer reader.Close()
 		body, _ := ioutil.ReadAll(reader)
 		s := string(body)
