@@ -2,6 +2,7 @@ package hrq
 
 import (
 	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -13,7 +14,6 @@ import (
 	"net/textproto"
 	"net/url"
 	"os"
-	"strings"
 	"time"
 )
 
@@ -41,6 +41,9 @@ type Request struct {
 	Timeout time.Duration
 	Data    interface{}
 	Files   []*File
+	// Gzip is a flag to decide whether to compress by gzip or not.
+	// (defaut false)
+	Gzip bool
 }
 
 func (r *Request) contentType() string {
@@ -51,15 +54,26 @@ func (r *Request) isPostOrPut() bool {
 	return r.Method == "POST" || r.Method == "PUT"
 }
 
-func (r *Request) setBody(values *strings.Reader) {
-	body := ioutil.NopCloser(values)
-	r.Body = body
-	r.ContentLength = int64(values.Len())
-	s := *values
-	r.GetBody = func() (io.ReadCloser, error) {
-		r := s
-		return ioutil.NopCloser(&r), nil
+func (r *Request) setBody(b []byte) {
+	if r.Gzip {
+		var buffer bytes.Buffer
+		writer := gzip.NewWriter(&buffer)
+		writer.Write(b)
+		writer.Close()
+		b = buffer.Bytes()
 	}
+	r.GetBody = func() (io.ReadCloser, error) {
+		reader := bytes.NewReader(b)
+		return ioutil.NopCloser(reader), nil
+	}
+	reader := bytes.NewReader(b)
+	r.Body = ioutil.NopCloser(reader)
+}
+
+// UseGzip makes Request.Gzip to true.
+func (r *Request) UseGzip() *Request {
+	r.Gzip = true
+	return r
 }
 
 // AddFile sets file for multipart/form.
@@ -109,15 +123,14 @@ func (r *Request) Send() (res *Response, err error) {
 				return nil, err
 			}
 			mapStringList := mapStringList(data)
-			values := strings.NewReader(url.Values(mapStringList).Encode())
+			values := []byte(url.Values(mapStringList).Encode())
 			r.setBody(values)
 		} else if r.contentType() == applicationJSON {
 			jsonBytes, err := json.Marshal(r.Data)
 			if err != nil {
 				return nil, err
 			}
-			values := strings.NewReader(string(jsonBytes))
-			r.setBody(values)
+			r.setBody(jsonBytes)
 		}
 	} else if r.isPostOrPut() && r.contentType() == multipartFormData {
 		var buffer bytes.Buffer
@@ -149,12 +162,7 @@ func (r *Request) Send() (res *Response, err error) {
 		r.SetHeader("Content-Type", writer.FormDataContentType())
 		r.ContentLength = int64(buffer.Len())
 		b := buffer.Bytes()
-		r.GetBody = func() (io.ReadCloser, error) {
-			reader := bytes.NewReader(b)
-			return ioutil.NopCloser(reader), nil
-		}
-		reader := bytes.NewReader(b)
-		r.Body = ioutil.NopCloser(reader)
+		r.setBody(b)
 	}
 	jar, err := cookiejar.New(nil)
 	if err != nil {
@@ -171,6 +179,9 @@ func (r *Request) Send() (res *Response, err error) {
 			return errors.New("there are 10 redirects")
 		}
 		return nil
+	}
+	if r.Gzip {
+		r.SetHeader("Content-Encoding", "gzip")
 	}
 	response, err := cli.Do(r.Request)
 	if err != nil {
@@ -217,6 +228,7 @@ func NewRequest(method, url string, body io.Reader, timeoutSecond int) (req *Req
 	req = &Request{
 		Request: request,
 		Timeout: timeout,
+		Gzip:    false,
 	}
 	return
 }

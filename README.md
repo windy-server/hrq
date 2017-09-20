@@ -30,6 +30,7 @@ func main() {
   - [File](https://github.com/windy-server/hrq#file)
   - [JSON](https://github.com/windy-server/hrq#json)
   - [History](https://github.com/windy-server/hrq#history)
+  - [Gzip](https://github.com/windy-server/hrq#gzip)
 
 ## Installation
 
@@ -172,4 +173,19 @@ res, _ := req.Send()
 history := req.History
 // The recent request
 res.Request
+```
+
+### Gzip
+
+```Go
+data := map[string][]string{
+    "foo": "123",
+    "bar": "456",
+}
+req, _ := hrq.Post("http://example.com", data)
+// You can send a request compressed by gzip.
+req.UseGzip()
+res, _ := req.SetApplicationJSON().Send()
+var result map[string]string
+err := res.JSON(&result)
 ```

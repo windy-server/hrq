@@ -1,11 +1,13 @@
 package hrq
 
 import (
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 	"time"
 )
@@ -15,29 +17,29 @@ func TestGetRequest(t *testing.T) {
 		// test for header
 		h1 := r.Header.Get("h1")
 		if h1 != "h2" {
-			t.Fatalf("h1 is wrong in TestGetRequest(). h1 is %#v", h1)
+			t.Fatalf("h1 is wrong. h1 is %#v", h1)
 		}
 		h3 := r.Header.Get("h3")
 		if h3 != "h4" {
-			t.Fatalf("h3 is wrong in TestGetRequest(). h3 is %#v", h3)
+			t.Fatalf("h3 is wrong. h3 is %#v", h3)
 		}
 		// test for query
 		v1 := r.URL.Query().Get("abc")
 		if v1 != "def" {
-			t.Fatalf("v1 is wrong in TestGetRequest(). v1 is %#v", v1)
+			t.Fatalf("v1 is wrong. v1 is %#v", v1)
 		}
 		v2 := r.URL.Query().Get("hij")
 		if v2 != "klm" {
-			t.Fatalf("v2 is wrong in TestGetRequest(). v2 is %#v", v2)
+			t.Fatalf("v2 is wrong. v2 is %#v", v2)
 		}
 		// test for cookie
 		c1, _ := r.Cookie("c1")
 		if c1.Value != "v1" {
-			t.Fatalf("c1 is wrong in TestGetRequest(). c1 is %#v", c1)
+			t.Fatalf("c1 is wrong. c1 is %#v", c1)
 		}
 		c2, _ := r.Cookie("c2")
 		if c2.Value != "v2" {
-			t.Fatalf("c2 is wrong in TestGetRequest(). c2 is %#v", c2)
+			t.Fatalf("c2 is wrong. c2 is %#v", c2)
 		}
 		values := [][]string{
 			[]string{"a", "b"},
@@ -65,7 +67,7 @@ func TestGetRequest(t *testing.T) {
 	res, _ := req.Send()
 	text, _ := res.Text()
 	if text != "FooBar" {
-		t.Fatalf("text is wrong in TestGetRequest(). text is %#v", text)
+		t.Fatalf("text is wrong. text is %#v", text)
 	}
 	cookies := map[string]string{
 		"a": "b",
@@ -73,11 +75,11 @@ func TestGetRequest(t *testing.T) {
 	}
 	cm := res.CookiesMap()
 	if cookies["a"] != cm["a"] || cookies["b"] != cm["b"] {
-		t.Fatalf("CookiesMap() is wrong in TestGetRequest(). cm is %#v", cm)
+		t.Fatalf("CookiesMap() is wrong. cm is %#v", cm)
 	}
 	a := res.CookieValue("a")
 	if a != "b" {
-		t.Fatalf("CookieValue() is wrong in TestGetRequest(). a is %#v", a)
+		t.Fatalf("CookieValue() is wrong. a is %#v", a)
 	}
 }
 
@@ -86,19 +88,19 @@ func TestPostRequest(t *testing.T) {
 		r.ParseForm()
 		foo := r.PostForm["foo"][0]
 		if foo != "123" {
-			t.Fatalf("foo is wrong in TestGetRequest(). foo is %#v", foo)
+			t.Fatalf("foo is wrong. foo is %#v", foo)
 		}
 		bar := r.PostForm["bar"][0]
 		if bar != "&456" {
-			t.Fatalf("bar is wrong in TestGetRequest(). bar is %#v", bar)
+			t.Fatalf("bar is wrong. bar is %#v", bar)
 		}
 		c1, _ := r.Cookie("c1")
 		if c1.Value != "v1" {
-			t.Fatalf("c1 is wrong in TestGetRequest(). c1 is %#v", c1)
+			t.Fatalf("c1 is wrong. c1 is %#v", c1)
 		}
 		c2, _ := r.Cookie("c2")
 		if c2.Value != "v2" {
-			t.Fatalf("c2 is wrong in TestGetRequest(). c2 is %#v", c2)
+			t.Fatalf("c2 is wrong. c2 is %#v", c2)
 		}
 		values := [][]string{
 			[]string{"a", "b"},
@@ -125,7 +127,7 @@ func TestPostRequest(t *testing.T) {
 	res, _ := req.Send()
 	text, _ := res.Text()
 	if text != "FooBar" {
-		t.Fatalf("text is wrong in TestGetRequest(). text is %#v", text)
+		t.Fatalf("text is wrong). text is %#v", text)
 	}
 	cookies := map[string]string{
 		"a": "b",
@@ -133,24 +135,33 @@ func TestPostRequest(t *testing.T) {
 	}
 	cm := res.CookiesMap()
 	if cookies["a"] != cm["a"] || cookies["b"] != cm["b"] {
-		t.Fatalf("CookiesMap() is wrong in TestGetRequest(). cm is %#v", cm)
+		t.Fatalf("CookiesMap() is wrong. cm is %#v", cm)
 	}
 	a := res.CookieValue("a")
 	if a != "b" {
-		t.Fatalf("CookieValue() is wrong in TestGetRequest(). a is %#v", a)
+		t.Fatalf("CookieValue() is wrong. a is %#v", a)
 	}
 }
 
 func TestMultipartFormData(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		r.ParseMultipartForm(0)
+		r.ParseMultipartForm(32 << 20)
 		foo := r.FormValue("foo")
 		if foo != "123" {
-			t.Fatalf("foo is wrong in TestGetRequest(). foo is %#v", foo)
+			t.Fatalf("foo is wrong. foo is %#v", foo)
 		}
 		bar := r.FormValue("bar")
 		if bar != "&456" {
-			t.Fatalf("bar is wrong in TestGetRequest(). bar is %#v", bar)
+			t.Fatalf("bar is wrong. bar is %#v", bar)
+		}
+		file, header, _ := r.FormFile("foo")
+		b, _ := ioutil.ReadAll(file)
+		s := string(b)
+		if s != "foobar\n" {
+			t.Fatalf("file is wrong. %#v", s)
+		}
+		if header.Filename != "foo.txt" {
+			t.Fatalf("filename is wrong. %#v", header.Filename)
 		}
 	}))
 	url := server.URL
@@ -158,8 +169,34 @@ func TestMultipartFormData(t *testing.T) {
 		"foo": "123",
 		"bar": "&456",
 	}
+	file, _ := os.Open("test/foo.txt")
 	req, _ := Post(url, data)
+	req.AddFile("text/plain", "foo", "foo.txt", file)
 	req.SetMultipartFormData()
+	req.Send()
+}
+
+func TestGzipRequest(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer r.Body.Close()
+		reader, _ := gzip.NewReader(r.Body)
+		contentEncoding := r.Header["Content-Encoding"][0]
+		if contentEncoding != "gzip" {
+			t.Fatalf("contentEncoding is wrong. %#v", contentEncoding)
+		}
+		defer reader.Close()
+		body, _ := ioutil.ReadAll(reader)
+		s := string(body)
+		if s != "foo=123" {
+			t.Fatalf("Request.UseGzip() is wrong. %#v", s)
+		}
+	}))
+	url := server.URL
+	data := map[string]string{
+		"foo": "123",
+	}
+	req, _ := Post(url, data)
+	req.SetApplicationFormUrlencoded().UseGzip()
 	req.Send()
 }
 
@@ -176,7 +213,7 @@ func TestApplicationJSON(t *testing.T) {
 			t.Fatalf(err.Error())
 		}
 		if list[0] != "foo" || list[1] != "bar" {
-			t.Fatalf("Request data is wrong in TestJSON()")
+			t.Fatalf("Request data is wrong")
 		}
 		fmt.Fprintf(w, `["abc", "efg"]`)
 	}))
@@ -193,7 +230,7 @@ func TestApplicationJSON(t *testing.T) {
 	v1 := d[0]
 	v2 := d[1]
 	if v1 != "abc" && v2 != "efg" {
-		t.Fatalf("list is wrong in TestJSON(). d is %#v", d)
+		t.Fatalf("list is wrong. d is %#v", d)
 	}
 }
 
