@@ -10,7 +10,6 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
-	"net/http/cookiejar"
 	"net/textproto"
 	"net/url"
 	"os"
@@ -26,6 +25,78 @@ var DefaultTimeout = 15
 
 // DefaultContentType is a default content-type of request.
 var DefaultContentType = applicationFormUrlencoded
+
+func send(session *Session, r *Request) (res *Response, err error) {
+	if r.isPostOrPut() && r.Data != nil && r.HeaderValue("Content-Type") != multipartFormData {
+		if r.contentType() == applicationFormUrlencoded {
+			data, ok := r.Data.(map[string]string)
+			if !ok {
+				err := errors.New("data is not a map[string]string at Request.Send()")
+				return nil, err
+			}
+			mapStringList := mapStringList(data)
+			values := []byte(url.Values(mapStringList).Encode())
+			r.setBody(values)
+		} else if r.contentType() == applicationJSON {
+			jsonBytes, err := json.Marshal(r.Data)
+			if err != nil {
+				return nil, err
+			}
+			r.setBody(jsonBytes)
+		}
+	} else if r.isPostOrPut() && r.contentType() == multipartFormData {
+		var buffer bytes.Buffer
+		writer := multipart.NewWriter(&buffer)
+		data, ok := r.Data.(map[string]string)
+		if !ok {
+			err := errors.New("data is not a map[string]string at Request.Send()")
+			return nil, err
+		}
+		for k, v := range data {
+			writer.WriteField(k, v)
+		}
+		for _, file := range r.Files {
+			part := make(textproto.MIMEHeader)
+			part.Set("Content-Type", file.ContentType)
+			desc := fmt.Sprintf(`form-data; name="%s"; filename="%s"`, file.FieldName, file.Name)
+			part.Set("Content-Disposition", desc)
+			fileWriter, err := writer.CreatePart(part)
+			if err != nil {
+				return nil, err
+			}
+			_, err = io.Copy(fileWriter, file.File)
+			if err != nil {
+				return nil, err
+			}
+			defer file.File.Close()
+		}
+		writer.Close()
+		r.SetHeader("Content-Type", writer.FormDataContentType())
+		r.ContentLength = int64(buffer.Len())
+		b := buffer.Bytes()
+		r.setBody(b)
+	}
+	requestHistory := []*http.Request{}
+	session.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		requestHistory = via
+		if len(via) >= 10 {
+			return errors.New("there are 10 redirects")
+		}
+		return nil
+	}
+	if r.Gzip {
+		r.SetHeader("Content-Encoding", "gzip")
+	}
+	response, err := session.Do(r.Request)
+	if err != nil {
+		return
+	}
+	res = &Response{
+		Response: response,
+		History:  requestHistory,
+	}
+	return
+}
 
 // File is file for multipart/form.
 type File struct {
@@ -115,83 +186,12 @@ func (r *Request) SetMultipartFormData() *Request {
 // If method is POST and content-type is application/json,
 // the request data is converted to json string.
 func (r *Request) Send() (res *Response, err error) {
-	if r.isPostOrPut() && r.Data != nil && r.HeaderValue("Content-Type") != multipartFormData {
-		if r.contentType() == applicationFormUrlencoded {
-			data, ok := r.Data.(map[string]string)
-			if !ok {
-				err := errors.New("data is not a map[string]string at Request.Send()")
-				return nil, err
-			}
-			mapStringList := mapStringList(data)
-			values := []byte(url.Values(mapStringList).Encode())
-			r.setBody(values)
-		} else if r.contentType() == applicationJSON {
-			jsonBytes, err := json.Marshal(r.Data)
-			if err != nil {
-				return nil, err
-			}
-			r.setBody(jsonBytes)
-		}
-	} else if r.isPostOrPut() && r.contentType() == multipartFormData {
-		var buffer bytes.Buffer
-		writer := multipart.NewWriter(&buffer)
-		data, ok := r.Data.(map[string]string)
-		if !ok {
-			err := errors.New("data is not a map[string]string at Request.Send()")
-			return nil, err
-		}
-		for k, v := range data {
-			writer.WriteField(k, v)
-		}
-		for _, file := range r.Files {
-			part := make(textproto.MIMEHeader)
-			part.Set("Content-Type", file.ContentType)
-			desc := fmt.Sprintf(`form-data; name="%s"; filename="%s"`, file.FieldName, file.Name)
-			part.Set("Content-Disposition", desc)
-			fileWriter, err := writer.CreatePart(part)
-			if err != nil {
-				return nil, err
-			}
-			_, err = io.Copy(fileWriter, file.File)
-			if err != nil {
-				return nil, err
-			}
-			defer file.File.Close()
-		}
-		writer.Close()
-		r.SetHeader("Content-Type", writer.FormDataContentType())
-		r.ContentLength = int64(buffer.Len())
-		b := buffer.Bytes()
-		r.setBody(b)
-	}
-	jar, err := cookiejar.New(nil)
+	s, err := NewSession()
 	if err != nil {
 		return
 	}
-	cli := &http.Client{
-		Timeout: r.Timeout,
-		Jar:     jar,
-	}
-	requestHistory := []*http.Request{}
-	cli.CheckRedirect = func(req *http.Request, via []*http.Request) error {
-		requestHistory = via
-		if len(via) >= 10 {
-			return errors.New("there are 10 redirects")
-		}
-		return nil
-	}
-	if r.Gzip {
-		r.SetHeader("Content-Encoding", "gzip")
-	}
-	response, err := cli.Do(r.Request)
-	if err != nil {
-		return
-	}
-	res = &Response{
-		Response: response,
-		History:  requestHistory,
-	}
-	return
+	s.Timeout = r.Timeout
+	return send(s, r)
 }
 
 // SetHeader sets a value of request header.
