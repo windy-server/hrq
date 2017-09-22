@@ -2,6 +2,7 @@ package hrq
 
 import (
 	"bytes"
+	"compress/gzip"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -55,12 +56,21 @@ func (r *Response) HeaderValue(name string) string {
 }
 
 // Content returns response body by byte.
-func (r *Response) Content() ([]byte, error) {
+func (r *Response) Content() (bs []byte, err error) {
 	if r.rawBody != nil {
 		return r.rawBody, nil
 	}
 	defer r.Body.Close()
-	bs, err := ioutil.ReadAll(r.Body)
+	encoding := r.HeaderValue("Content-Encoding")
+	body := r.Body
+	if encoding == "gzip" {
+		body, err = gzip.NewReader(r.Body)
+		if err != nil {
+			return nil, err
+		}
+		defer body.Close()
+	}
+	bs, err = ioutil.ReadAll(body)
 	if err != nil {
 		return nil, err
 	}

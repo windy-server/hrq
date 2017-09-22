@@ -193,10 +193,6 @@ res, _ := req.SetApplicationJSON().Send()
 
 ```Go
 session, _ := NewSession()
-data := map[string][]string{
-    "foo": "123",
-    "bar": "456",
-}
-req, _ := hrq.Post("http://example.com", data)
+req, _ := hrq.Get("http://example.com")
 res, _ := session.Send(req)
 ```
