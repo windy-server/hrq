@@ -192,7 +192,7 @@ res, _ := req.SetApplicationJSON().Send()
 ### Session
 
 ```Go
-session, _ := NewSession()
+session, _ := hrq.NewSession()
 req, _ := hrq.Get("http://example.com")
 res, _ := session.Send(req)
 ```
