@@ -152,7 +152,7 @@ res, _ := req.Send()
 ### JSON
 
 ```Go
-data := map[string][]string{
+data := map[string]string{
     "foo": "123",
     "bar": "456",
 }
@@ -179,7 +179,7 @@ res.Request
 ### Gzip
 
 ```Go
-data := map[string][]string{
+data := map[string]string{
     "foo": "123",
     "bar": "456",
 }
