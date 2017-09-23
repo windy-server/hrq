@@ -141,6 +141,12 @@ func (r *Request) setBody(b []byte) {
 	r.Body = ioutil.NopCloser(reader)
 }
 
+// AcceptGzip is an alias of req.SetHeader("Accept-Encoding", "gzip").
+// hrq automatically decompress request body.
+func (r *Request) AcceptGzip() *Request {
+	return r.SetHeader("Accept-Encoding", "gzip")
+}
+
 // UseGzip makes Request.Gzip to true.
 func (r *Request) UseGzip() *Request {
 	r.Gzip = true
