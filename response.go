@@ -27,8 +27,9 @@ func (r *Response) URL() *url.URL {
 
 // CookieValue returns a cookie value.
 func (r *Response) CookieValue(name string) string {
+	lowerName := strings.ToLower(name)
 	for _, c := range r.Response.Cookies() {
-		if c.Name == name {
+		if strings.ToLower(c.Name) == lowerName {
 			return c.Value
 		}
 	}

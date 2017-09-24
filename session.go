@@ -3,6 +3,8 @@ package hrq
 import (
 	"net/http"
 	"net/http/cookiejar"
+	Url "net/url"
+	"strings"
 )
 
 // Session is a session.
@@ -29,4 +31,17 @@ func NewSession() (s *Session, err error) {
 func (s *Session) Send(r *Request) (res *Response, err error) {
 	s.Timeout = r.Timeout
 	return send(s, r)
+}
+
+// CookieValue returns a cookie value.
+func (s *Session) CookieValue(url, name string) string {
+	u, _ := Url.Parse(url)
+	cookieList := s.Jar.Cookies(u)
+	lowerName := strings.ToLower(name)
+	for _, c := range cookieList {
+		if strings.ToLower(c.Name) == lowerName {
+			return c.Value
+		}
+	}
+	return ""
 }
