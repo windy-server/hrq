@@ -62,5 +62,16 @@ func TestSession(t *testing.T) {
 	if len(cookieList) != 4 {
 		t.Fatalf("cookieList is wrong. a1 is %#v", a1)
 	}
-
+	if session.CookieValue(server.URL, "a1") != "b1" {
+		t.Fatalf("session.CookieValue() is wrong.")
+	}
+	if session.CookieValue(server.URL, "C1") != "d1" {
+		t.Fatalf("session.CookieValue() is wrong.")
+	}
+	if session.CookieValue(server.URL, "A2") != "b2" {
+		t.Fatalf("session.CookieValue() is wrong.")
+	}
+	if session.CookieValue(server.URL, "c2") != "d2" {
+		t.Fatalf("session.CookieValue() is wrong.")
+	}
 }
