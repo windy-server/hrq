@@ -15,7 +15,7 @@ func TestHeaderValue(t *testing.T) {
 		},
 	}
 	res.Header = http.Header(map[string][]string{
-		"foo": []string{"bar"},
+		"foo": {"bar"},
 	})
 	value := res.HeaderValue("foo")
 	if value != "bar" {
