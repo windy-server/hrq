@@ -42,8 +42,8 @@ func TestGetRequest(t *testing.T) {
 			t.Fatalf("c2 is wrong. c2 is %#v", c2)
 		}
 		values := [][]string{
-			[]string{"a", "b"},
-			[]string{"c", "d"},
+			{"a", "b"},
+			{"c", "d"},
 		}
 		for _, v := range values {
 			cookie := &http.Cookie{
@@ -103,8 +103,8 @@ func TestPostRequest(t *testing.T) {
 			t.Fatalf("c2 is wrong. c2 is %#v", c2)
 		}
 		values := [][]string{
-			[]string{"a", "b"},
-			[]string{"c", "d"},
+			{"a", "b"},
+			{"c", "d"},
 		}
 		for _, v := range values {
 			cookie := &http.Cookie{

@@ -14,13 +14,13 @@ func TestSession(t *testing.T) {
 		// test for cookie
 		if time == 1 {
 			values = [][]string{
-				[]string{"a1", "b1"},
-				[]string{"c1", "d1"},
+				{"a1", "b1"},
+				{"c1", "d1"},
 			}
 		} else {
 			values = [][]string{
-				[]string{"a2", "b2"},
-				[]string{"c2", "d2"},
+				{"a2", "b2"},
+				{"c2", "d2"},
 			}
 			a1, _ := r.Cookie("a1")
 			if a1.Value != "b1" {
