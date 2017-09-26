@@ -3,6 +3,7 @@ package hrq
 import (
 	"bytes"
 	"compress/gzip"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -150,6 +151,12 @@ func (r *Request) AcceptGzip() *Request {
 // UseGzip makes Request.Gzip to true.
 func (r *Request) UseGzip() *Request {
 	r.Gzip = true
+	return r
+}
+
+// WithContext sets a context.
+func (r *Request) WithContext(ctx context.Context) *Request {
+	r.Request = r.Request.WithContext(ctx)
 	return r
 }
 
