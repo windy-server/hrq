@@ -232,6 +232,12 @@ func TestApplicationJSON(t *testing.T) {
 	if v1 != "abc" && v2 != "efg" {
 		t.Fatalf("list is wrong. d is %#v", d)
 	}
+	dump, _ := req.DumpHeader()
+	tmpl := "POST / HTTP/1.1\r\nHost: %s\r\nContent-Type: application/json\r\n\r\n"
+	result := fmt.Sprintf(tmpl, url[7:])
+	if result != dump {
+		t.Fatalf("DumpHeader is wrong. want %#v, got %#v", result, dump)
+	}
 }
 
 func TestHeader(t *testing.T) {
