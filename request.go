@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
+	"net/http/httputil"
 	"net/textproto"
 	"net/url"
 	"os"
@@ -237,6 +238,12 @@ func NewRequest(method, url string, body io.Reader, timeoutSecond int) (req *Req
 		Gzip:    false,
 	}
 	return
+}
+
+// DumpHeader returns a header string.
+func (r *Request) DumpHeader() (dump string, err error) {
+	b, err := httputil.DumpRequest(r.Request, false)
+	return string(b), err
 }
 
 // Get make a request whose method is GET.
