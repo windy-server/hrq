@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"strings"
 
@@ -43,6 +44,12 @@ func (r *Response) CookiesMap() map[string]string {
 		cookies[c.Name] = c.Value
 	}
 	return cookies
+}
+
+// DumpHeader returns a header string.
+func (r *Response) DumpHeader() (dump string, err error) {
+	b, err := httputil.DumpResponse(r.Response, false)
+	return string(b), err
 }
 
 // HeaderValue returns header value.
